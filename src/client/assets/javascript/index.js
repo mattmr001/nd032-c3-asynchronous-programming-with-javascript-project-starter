@@ -7,6 +7,10 @@ var store = {
 	race_id: undefined,
 }
 
+const updateStore = (key, value) => {
+	store[key] = value
+}
+
 // We need our javascript to wait until the DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
 	onPageLoad()
@@ -22,7 +26,6 @@ async function onPageLoad() {
 
 
 		const racers = await getRacers()
-		console.log(racers)
 		const racersHtml = renderRacerCars(racers)
 		renderAt('#racers', racersHtml)
 
@@ -31,26 +34,6 @@ async function onPageLoad() {
 		console.error(error)
 	}
 }
-
-
-// async function onPageLoad() {
-// 	try {
-// 		getTracks()
-// 			.then(tracks => {
-// 				const html = renderTrackCards(tracks)
-// 				renderAt('#tracks', html)
-// 			})
-//
-// 		getRacers()
-// 			.then((racers) => {
-// 				const html = renderRacerCars(racers)
-// 				renderAt('#racers', html)
-// 			})
-// 	} catch(error) {
-// 		console.log("Problem getting tracks and racers ::", error.message)
-// 		console.error(error)
-// 	}
-// }
 
 function setupClickHandlers() {
 	document.addEventListener('click', function(event) {
@@ -180,7 +163,8 @@ function handleSelectTrack(target) {
 	target.classList.add('selected')
 
 	// TODO - save the selected track id to the store
-	
+	updateStore("track_id", target.id)
+	console.log(store)
 }
 
 function handleAccelerate() {
