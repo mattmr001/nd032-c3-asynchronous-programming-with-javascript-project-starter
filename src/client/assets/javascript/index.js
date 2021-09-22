@@ -15,22 +15,42 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function onPageLoad() {
 	try {
-		getTracks()
-			.then(tracks => {
-				const html = renderTrackCards(tracks)
-				renderAt('#tracks', html)
-			})
 
-		getRacers()
-			.then((racers) => {
-				const html = renderRacerCars(racers)
-				renderAt('#racers', html)
-			})
+		const tracks = await getTracks()
+		const tracksHtml = renderTrackCards(tracks)
+		renderAt('#tracks', tracksHtml)
+
+
+		const racers = await getRacers()
+		console.log(racers)
+		const racersHtml = renderRacerCars(racers)
+		renderAt('#racers', racersHtml)
+
 	} catch(error) {
 		console.log("Problem getting tracks and racers ::", error.message)
 		console.error(error)
 	}
 }
+
+
+// async function onPageLoad() {
+// 	try {
+// 		getTracks()
+// 			.then(tracks => {
+// 				const html = renderTrackCards(tracks)
+// 				renderAt('#tracks', html)
+// 			})
+//
+// 		getRacers()
+// 			.then((racers) => {
+// 				const html = renderRacerCars(racers)
+// 				renderAt('#racers', html)
+// 			})
+// 	} catch(error) {
+// 		console.log("Problem getting tracks and racers ::", error.message)
+// 		console.error(error)
+// 	}
+// }
 
 function setupClickHandlers() {
 	document.addEventListener('click', function(event) {
@@ -172,17 +192,19 @@ function handleAccelerate() {
 // Provided code - do not remove
 
 function renderRacerCars(racers) {
-	if (!racers.length) {
+	if (!racers) {
 		return `
 			<h4>Loading Racers...</4>
 		`
 	}
 
+	console.log(racers)
 	const results = racers.map(renderRacerCard).join('')
+	console.log("results : ",results)
 
 	return `
 		<ul id="racers">
-			${reuslts}
+			${results}
 		</ul>
 	`
 }
@@ -296,7 +318,6 @@ function raceProgress(positions) {
 
 function renderAt(element, html) {
 	const node = document.querySelector(element)
-
 	node.innerHTML = html
 }
 
@@ -321,17 +342,23 @@ function defaultFetchOpts() {
 
 function getTracks() {
 	// GET request to `${SERVER}/api/tracks`
+	  return fetch(`${SERVER}/api/tracks`)
+	  .then(res => res.json())
+	  .catch(error => console.log(error))
 }
 
 function getRacers() {
 	// GET request to `${SERVER}/api/cars`
+	return fetch(`${SERVER}/api/cars`)
+		.then(res => res.json())
+		.catch(error => console.log(error))
 }
 
 function createRace(player_id, track_id) {
 	player_id = parseInt(player_id)
 	track_id = parseInt(track_id)
 	const body = { player_id, track_id }
-	
+
 	return fetch(`${SERVER}/api/races`, {
 		method: 'POST',
 		...defaultFetchOpts(),
@@ -344,6 +371,10 @@ function createRace(player_id, track_id) {
 
 function getRace(id) {
 	// GET request to `${SERVER}/api/races/${id}`
+	return fetch(`${SERVER}/api/races/$${id}`)
+		.then(res => res.json())
+		.then(result => console.log("Race id : ", result))
+		.catch(error => console.log(error))
 }
 
 function startRace(id) {
@@ -352,11 +383,19 @@ function startRace(id) {
 		...defaultFetchOpts(),
 	})
 	.then(res => res.json())
-	.catch(err => console.log("Problem with getRace request::", err))
+	.catch(err => console.log("Problem with startRace request::", err))
 }
 
 function accelerate(id) {
 	// POST request to `${SERVER}/api/races/${id}/accelerate`
 	// options parameter provided as defaultFetchOpts
 	// no body or datatype needed for this request
+	return fetch(`${SERVER}/api/races/${id}/accelerate`, {
+		method: 'POST',
+		...defaultFetchOpts()
+	})
+	.then(res => res.json())
+	.then(result => console.log(result))
+	.catch(err => console.log("Problem with accelerate request::", err))
+
 }
