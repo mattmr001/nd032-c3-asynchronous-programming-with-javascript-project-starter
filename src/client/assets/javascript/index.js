@@ -63,7 +63,7 @@ function setupClickHandlers() {
 
 		// Handle acceleration click
 		if (target.matches('#gas-peddle')) {
-			handleAccelerate(target)
+			handleAccelerate()
 		}
 
 	}, false)
@@ -116,7 +116,7 @@ async function runRace(raceID) {
 
 	try{
 		return new Promise(resolve => {
-	// TODO - use Javascript's built in setInterval method to get race info every 500ms
+	// use Javascript's built in setInterval method to get race info every 500ms
 			const raceInterval = setInterval( async () => {
 				const res = await getRace(raceID)
 				// console.log("res : ", res)
@@ -204,7 +204,9 @@ function handleSelectTrack(target) {
 
 function handleAccelerate() {
 	console.log("accelerate button clicked")
-	// TODO - Invoke the API call to accelerate
+	// Invoke the API call to accelerate
+	const id = JSON.stringify(store.race_id)
+	accelerate(id)
 }
 
 // HTML VIEWS ------------------------------------------------
@@ -307,9 +309,6 @@ function resultsView(positions) {
 }
 
 function raceProgress(positions) {
-	console.log("positions : ", positions[0].id)
-	console.log("positions type : ", typeof positions[0].id)
-	console.log("store.player_id : ", typeof store.player_id)
 	let userPlayer = positions.find(e => e.id === store.player_id)
 	userPlayer.driver_name += " (you)"
 
@@ -409,16 +408,19 @@ async function startRace(id) {
 	return result
 }
 
-function accelerate(id) {
+async function accelerate(id) {
 	// POST request to `${SERVER}/api/races/${id}/accelerate`
 	// options parameter provided as defaultFetchOpts
 	// no body or datatype needed for this request
-	return fetch(`${SERVER}/api/races/${id}/accelerate`, {
+
+	try{
+		result = await fetch(`${SERVER}/api/races/${id}/accelerate`, {
 		method: 'POST',
 		...defaultFetchOpts()
-	})
-	.then(res => res.json())
-	.then(result => console.log(result))
-	.catch(err => console.log("Problem with accelerate request::", err))
+		})
+	} catch (error) {
+		console.log("Problem with accelerate request::", error)
+	}
+	return result
 
 }
